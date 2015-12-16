@@ -1,4 +1,4 @@
-package dbtest
+package db
 
 import (
 	"fmt"
@@ -126,4 +126,38 @@ func TxSimpleQuery(sql string, testRetFunc CallBack) (err error) {
 	}
 
 	return tx.Commit()
+}
+
+func ExecuteSql(sql string) (err error) {
+	db, err := OpenDB()
+	if err != nil {
+		return err
+	}
+	
+	defer db.Close()
+	_, err := db.Exec(sql)
+	if err != nil {
+		return err
+	}
+	
+	return nil
+}
+
+func DataInDB(sql string) (bool, error) {
+	db, err := OpenDB()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+	
+	rows, err := db.Query(sql)
+	if err != nil {
+		return false, err
+	}
+	
+	defer rows.Close()
+	if rows.Next() {
+		return true, nil
+	}
+	return false, nil
 }
